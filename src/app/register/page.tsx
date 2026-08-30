@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function RegisterPage() { return <div className="auth-shell"><Link href="/" className="brand">换房 <i>Match</i></Link><div className="auth-panel"><span className="section-kicker">JOIN MATCH</span><h1>加入换房 Match</h1><p>先留下你的置换方向，找到真正互补的机会。</p><label>手机号<input placeholder="请输入手机号" /></label><label>设置密码<input type="password" placeholder="设置登录密码" /></label><button className="button button-primary" disabled>创建账号（即将开放）</button><span className="auth-foot">已有账号？ <Link href="/login">直接登录</Link></span></div></div>; }
