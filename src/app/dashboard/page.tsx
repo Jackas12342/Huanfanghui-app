@@ -1,23 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AppFrame } from "@/components/layout/AppFrame";
 import { getViewerBaseListing, loadListings, loadNotifications, loadSession, reciprocalMatch, type Listing, type Notification, type SessionState } from "@/lib/mvp";
 
 type FeedTab = "downsize" | "upsize";
 
 export default function DashboardPage() {
-  const [session, setSession] = useState<SessionState | null>(null);
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [session] = useState<SessionState>(() => loadSession());
+  const [listings] = useState<Listing[]>(() => loadListings().filter((item) => item.status === "live"));
+  const [notifications] = useState<Notification[]>(() => loadNotifications());
   const [tab, setTab] = useState<FeedTab>("downsize");
-
-  useEffect(() => {
-    setSession(loadSession());
-    setListings(loadListings().filter((item) => item.status === "live"));
-    setNotifications(loadNotifications());
-  }, []);
 
   const matched = useMemo(() => {
     const base = getViewerBaseListing();

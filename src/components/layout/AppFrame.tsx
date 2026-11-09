@@ -2,15 +2,11 @@
 
 import Link from "next/link";
 import { ArrowLeft, Bell, Building2 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { accountStateLabel, loadSession, signOut, verificationLabel, type SessionState } from "@/lib/mvp";
 
 export function AppFrame({ title, eyebrow, children }: { title: string; eyebrow: string; children: ReactNode }) {
-  const [session, setSession] = useState<SessionState | null>(null);
-
-  useEffect(() => {
-    setSession(loadSession());
-  }, []);
+  const [session, setSession] = useState<SessionState>(() => loadSession());
 
   const onSignOut = () => {
     signOut();
@@ -40,7 +36,7 @@ export function AppFrame({ title, eyebrow, children }: { title: string; eyebrow:
           <Bell size={18} />
           <span>{session?.phone ? session.phone : "游客"}</span>
           <span className="user-avatar">房</span>
-          {session?.accountState !== "guest" ? (
+          {session.accountState !== "guest" ? (
             <button className="button button-ghost button-small" onClick={onSignOut}>
               退出
             </button>
@@ -53,13 +49,11 @@ export function AppFrame({ title, eyebrow, children }: { title: string; eyebrow:
         </Link>
         <span className="section-kicker">{eyebrow}</span>
         <h1 className="app-title">{title}</h1>
-        {session ? (
-          <div className="workspace-note">
-            <span>账号状态：{accountStateLabel(session.accountState)}</span>
-            <span>资产认证：{verificationLabel(session.verificationStatus)}</span>
-            <span>微信绑定：{session.wechatBound ? "已绑定" : "未绑定"}</span>
-          </div>
-        ) : null}
+        <div className="workspace-note">
+          <span>账号状态：{accountStateLabel(session.accountState)}</span>
+          <span>资产认证：{verificationLabel(session.verificationStatus)}</span>
+          <span>微信绑定：{session.wechatBound ? "已绑定" : "未绑定"}</span>
+        </div>
         {children}
       </main>
     </div>

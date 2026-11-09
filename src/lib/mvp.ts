@@ -479,7 +479,11 @@ export const addListing = (listing: Omit<Listing, "id" | "createdAt" | "status">
 };
 
 export const setListingTakedown = (listingId: string) => {
-  const listings = loadListings().map((item) => (item.id === listingId ? { ...item, status: item.status === "takedown" ? "live" : "takedown" } : item));
+  const listings: Listing[] = loadListings().map((item) =>
+    item.id === listingId
+      ? { ...item, status: item.status === "takedown" ? "live" : "takedown" }
+      : item
+  );
   saveListings(listings);
 };
 

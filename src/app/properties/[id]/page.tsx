@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useParams } from "next/navigation";
 import { AppFrame } from "@/components/layout/AppFrame";
@@ -9,17 +9,11 @@ import { createIntent, getViewerBaseListing, loadListings, loadSession, reciproc
 
 export default function PropertyPage() {
   const params = useParams<{ id: string }>();
-  const [id, setId] = useState<string>("");
-  const [listing, setListing] = useState<Listing | null>(null);
-  const [session, setSession] = useState<SessionState | null>(null);
+  const [session] = useState<SessionState>(() => loadSession());
   const [notice, setNotice] = useState<string | null>(null);
+  const id = params.id ?? "";
 
-  useEffect(() => {
-    const nextId = params.id ?? "";
-    setId(nextId);
-    setListing(loadListings().find((item) => item.id === nextId) ?? null);
-    setSession(loadSession());
-  }, [params.id]);
+  const listing = useMemo<Listing | null>(() => loadListings().find((item) => item.id === id) ?? null, [id]);
 
   const score = useMemo(() => {
     if (!listing) return null;
@@ -34,8 +28,8 @@ export default function PropertyPage() {
     );
   }
 
-  const canSeeFull = session?.accountState !== "guest";
-  const canIntent = session?.accountState === "assetVerified";
+  const canSeeFull = session.accountState !== "guest";
+  const canIntent = session.accountState === "assetVerified";
 
   return (
     <AppFrame eyebrow="PROPERTY DETAIL" title={`${listing.current.compound} · ${listing.current.area}㎡`}>

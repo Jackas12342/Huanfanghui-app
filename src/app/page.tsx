@@ -1,19 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ArrowRight, Building2 } from "lucide-react";
 import { loadListings, loadSession, type Listing } from "@/lib/mvp";
 
 export default function Home() {
-  const [isGuest, setIsGuest] = useState(true);
-  const [listings, setListings] = useState<Listing[]>([]);
-
-  useEffect(() => {
-    const session = loadSession();
-    setIsGuest(session.accountState === "guest");
-    setListings(loadListings().slice(0, 3));
-  }, []);
+  const [isGuest] = useState(() => loadSession().accountState === "guest");
+  const [listings] = useState<Listing[]>(() => loadListings().slice(0, 3));
 
   return (
     <div className="site-shell">

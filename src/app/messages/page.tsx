@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AppFrame } from "@/components/layout/AppFrame";
 import {
   approveContactShareByPeer,
@@ -16,9 +16,9 @@ import {
 } from "@/lib/mvp";
 
 export default function MessagesPage() {
-  const [session, setSession] = useState<SessionState | null>(null);
-  const [threads, setThreads] = useState<ChatThread[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [session] = useState<SessionState>(() => loadSession());
+  const [threads, setThreads] = useState<ChatThread[]>(() => loadThreads());
+  const [selectedId, setSelectedId] = useState<string | null>(() => loadThreads()[0]?.id ?? null);
   const [draft, setDraft] = useState("");
   const [wechatDraft, setWechatDraft] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
@@ -28,13 +28,6 @@ export default function MessagesPage() {
     setThreads(next);
     setSelectedId(next[0]?.id ?? null);
   };
-
-  useEffect(() => {
-    setSession(loadSession());
-    const next = loadThreads();
-    setThreads(next);
-    setSelectedId(next[0]?.id ?? null);
-  }, []);
 
   const selected = useMemo(() => threads.find((item) => item.id === selectedId) ?? null, [threads, selectedId]);
 

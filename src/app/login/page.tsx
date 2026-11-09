@@ -1,28 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { bindWechat, loadSession, requestOtp, verifyOtp } from "@/lib/mvp";
+import { useState } from "react";
+import { bindWechat, loadSession, requestOtp, verifyOtp, type SessionState } from "@/lib/mvp";
 
 export default function LoginPage() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [wechatId, setWechatId] = useState("");
   const [message, setMessage] = useState<string | null>(null);
-  const [sessionVersion, setSessionVersion] = useState(0);
-
-  const session = useMemo(() => loadSession(), [sessionVersion]);
+  const [session, setSession] = useState<SessionState>(() => loadSession());
 
   const onSendOtp = () => {
     const result = requestOtp(phone.trim());
     setMessage(result.message);
-    setSessionVersion((n) => n + 1);
+    setSession(loadSession());
   };
 
   const onVerifyOtp = () => {
     const result = verifyOtp(phone.trim(), otp.trim());
     setMessage(result.message);
-    setSessionVersion((n) => n + 1);
+    setSession(loadSession());
   };
 
   const onBindWechat = () => {
@@ -32,7 +30,7 @@ export default function LoginPage() {
     }
     bindWechat(wechatId.trim());
     setMessage("微信已绑定（演示）");
-    setSessionVersion((n) => n + 1);
+    setSession(loadSession());
   };
 
   return (

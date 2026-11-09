@@ -1,19 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AppFrame } from "@/components/layout/AppFrame";
 import { createIntent, getViewerBaseListing, loadListings, loadSession, reciprocalMatch, type Listing, type SessionState } from "@/lib/mvp";
 
 export default function MatchesPage() {
-  const [session, setSession] = useState<SessionState | null>(null);
-  const [listings, setListings] = useState<Listing[]>([]);
+  const [session] = useState<SessionState>(() => loadSession());
+  const [listings] = useState<Listing[]>(() => loadListings().filter((item) => item.status === "live"));
   const [intentOnly, setIntentOnly] = useState(true);
-
-  useEffect(() => {
-    setSession(loadSession());
-    setListings(loadListings().filter((item) => item.status === "live"));
-  }, []);
 
   const canSeeFull = session?.accountState !== "guest";
   const canExpressIntent = session?.accountState === "assetVerified";

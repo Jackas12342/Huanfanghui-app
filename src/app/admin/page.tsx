@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AppFrame } from "@/components/layout/AppFrame";
 import {
   adminUpdateVerification,
@@ -14,19 +14,15 @@ import {
 } from "@/lib/mvp";
 
 export default function AdminPage() {
-  const [submissions, setSubmissions] = useState<VerificationSubmission[]>([]);
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [reports, setReports] = useState<UserReport[]>([]);
+  const [submissions, setSubmissions] = useState<VerificationSubmission[]>(() => loadVerificationSubmissions());
+  const [listings, setListings] = useState<Listing[]>(() => loadListings());
+  const [reports, setReports] = useState<UserReport[]>(() => loadReports());
 
   const refresh = () => {
     setSubmissions(loadVerificationSubmissions());
     setListings(loadListings());
     setReports(loadReports());
   };
-
-  useEffect(() => {
-    refresh();
-  }, []);
 
   return (
     <AppFrame eyebrow="ADMIN OPERATIONS" title="审核与风控最小工作台">

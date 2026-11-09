@@ -1,20 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AppFrame } from "@/components/layout/AppFrame";
 import { loadSession, loadVerificationSubmissions, submitVerification, verificationLabel, type SessionState, type VerificationSubmission } from "@/lib/mvp";
 
 export default function ProfilePage() {
-  const [session, setSession] = useState<SessionState | null>(null);
-  const [submissions, setSubmissions] = useState<VerificationSubmission[]>([]);
+  const [session, setSession] = useState<SessionState>(() => loadSession());
+  const [submissions, setSubmissions] = useState<VerificationSubmission[]>(() => loadVerificationSubmissions());
   const [docType, setDocType] = useState<"房产证" | "身份证">("房产证");
   const [fileName, setFileName] = useState("");
   const [message, setMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    setSession(loadSession());
-    setSubmissions(loadVerificationSubmissions());
-  }, []);
 
   const onSubmit = () => {
     if (!fileName.trim()) {
@@ -32,10 +27,10 @@ export default function ProfilePage() {
       <div className="profile-panel">
         <div className="profile-avatar">房</div>
         <div>
-          <h2>{session?.phone ?? "游客"}</h2>
-          <p>账号等级：{session?.accountState ?? "guest"}</p>
+          <h2>{session.phone ?? "游客"}</h2>
+          <p>账号等级：{session.accountState}</p>
         </div>
-        <span className="verified">资产认证：{session ? verificationLabel(session.verificationStatus) : "未提交"}</span>
+        <span className="verified">资产认证：{verificationLabel(session.verificationStatus)}</span>
       </div>
 
       <div className="form-panel">
