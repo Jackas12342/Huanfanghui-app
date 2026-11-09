@@ -1,5 +1,91 @@
-import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
-import { AppFrame } from "@/components/layout/AppFrame";
+"use client";
 
-export default function MatchesPage() { return <AppFrame eyebrow="RECIPROCAL MATCHING" title="与你的需求，刚好互补"><div className="workspace-note"><Sparkles size={17} /><span>以下匹配基于演示数据。接入后端后，这里将由真实房产和置换需求实时计算。</span></div><div className="workspace-list"><article className="workspace-card"><div className="demo-image" /><div><span className="match-tag">95% 高匹配</span><h2>仁恒滨江园 · 145㎡四居</h2><p>对方想换一套 60–80㎡ 的两居，与你的房产和需求形成互补。</p><Link className="button button-primary" href="/properties/prop-2">查看匹配详情 <ArrowRight size={16} /></Link></div></article><article className="workspace-card"><div className="demo-image second" /><div><span className="match-tag">88% 高匹配</span><h2>万科城市花园 · 118㎡三居</h2><p>面积、户型与预算均在你的置换范围内，等待进一步确认。</p><Link className="button button-ghost" href="/properties/prop-3">查看房产详情 <ArrowRight size={16} /></Link></div></article></div></AppFrame>; }
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { AppFrame } from "@/components/layout/AppFrame";
+import { createIntent, getViewerBaseListing, loadListings, loadSession, reciprocalMatch, type Listing, type SessionState } from "@/lib/mvp";
+
+export default function MatchesPage() {
+  const [session, setSession] = useState<SessionState | null>(null);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [intentOnly, setIntentOnly] = useState(true);
+
+  useEffect(() => {
+    setSession(loadSession());
+    setListings(loadListings().filter((item) => item.status === "live"));
+  }, []);
+
+  const canSeeFull = session?.accountState !== "guest";
+  const canExpressIntent = session?.accountState === "assetVerified";
+
+  const results = useMemo(() => {
+    const me = getViewerBaseListing();
+    return listings
+      .map((listing) => ({ listing, score: reciprocalMatch(me, listing) }))
+      .filter((item) => (intentOnly ? item.score.total >= 60 : true))
+      .sort((a, b) => b.score.total - a.score.total);
+  }, [listings, intentOnly]);
+
+  return (
+    <AppFrame eyebrow="RECIPROCAL MATCHING" title="严格互补 + 评分匹配">
+      <div className="form-actions">
+        <button className={`button ${intentOnly ? "button-primary" : "button-ghost"}`} onClick={() => setIntentOnly((v) => !v)}>
+          {intentOnly ? "仅看意向高匹配" : "展示全部匹配"}
+        </button>
+        <small>评分规则：区域40 + 面积30 + 预算30</small>
+      </div>
+
+      <div className="workspace-list">
+        {results.map(({ listing, score }) => (
+          <article className="workspace-card" key={listing.id}>
+            <div>
+              <span className="match-tag">{score.total}%</span>
+              <h2>
+                {canSeeFull ? `${listing.current.compound} · ${listing.current.area}㎡` : "深圳 · 区域信息已模糊"}
+              </h2>
+              <p>
+                {canSeeFull
+                  ? `估值 ${listing.current.estimatedValueWan} 万；对方目标：${listing.target.districts.join("/")}，${listing.target.minArea}-${listing.target.maxArea}㎡`
+                  : "请先完成手机认证后查看完整挂牌信息"}
+              </p>
+              <p>
+                分项：位置 {score.location}/40，面积 {score.size}/30，预算 {score.budget}/30
+                {score.strictReciprocal ? "（满足100%互补规则）" : "（部分条件需协商）"}
+              </p>
+              <ul>
+                {score.reasons.map((reason) => (
+                  <li key={reason}>{reason}</li>
+                ))}
+              </ul>
+              <div className="form-actions">
+                <Link className="button button-ghost" href={`/properties/${listing.id}`}>
+                  详情
+                </Link>
+                <button
+                  className="button button-primary"
+                  onClick={() => {
+                    createIntent(listing.id);
+                    alert("已表达置换意向，若双方同意可进入私信");
+                  }}
+                  disabled={!canExpressIntent}
+                >
+                  表达置换意向
+                </button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {!canExpressIntent ? (
+        <div className="empty-state compact">
+          <h2>资产认证后才能表达意向和私信</h2>
+          <p>请前往个人中心上传打码后的房产证或身份证。</p>
+          <Link href="/profile" className="button button-primary">
+            去提交认证
+          </Link>
+        </div>
+      ) : null}
+    </AppFrame>
+  );
+}

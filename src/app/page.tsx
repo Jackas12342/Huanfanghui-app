@@ -1,25 +1,82 @@
-  import Link from "next/link";
-  import { ArrowRight, Bell, Building2, Check, ChevronRight, Heart, Menu, Search, Sparkles } from "lucide-react";
+"use client";
 
-  const matches = [
-    { score: 95, mine: "72㎡ · 2室1厅", theirs: "145㎡ · 4室2厅", location: "浦东新区 · 仁恒滨江园", image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1000&q=85" },
-    { score: 88, mine: "72㎡ · 2室1厅", theirs: "118㎡ · 3室2厅", location: "闵行区 · 万科城市花园", image: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1000&q=85" },
-  ];
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { ArrowRight, Building2 } from "lucide-react";
+import { loadListings, loadSession, type Listing } from "@/lib/mvp";
 
-  export default function Home() {
-  return <div className="site-shell">
-    <header className="site-header">
-      <Link href="/" className="brand"><span className="brand-mark"><Building2 size={19} /></span><span>换房 <i>Match</i></span></Link>
-      <nav className="main-nav"><Link href="/matches">智能匹配</Link><Link href="/properties/new">发布房产</Link><Link href="/dashboard">我的工作台</Link></nav>
-      <div className="header-actions"><button className="icon-button" aria-label="搜索"><Search size={18} /></button><button className="icon-button" aria-label="通知"><Bell size={18} /><b className="notification-dot" /></button><Link className="login-link" href="/login">登录</Link><Link className="button button-dark button-small" href="/register">免费加入 <ArrowRight size={15} /></Link><button className="mobile-menu" aria-label="打开菜单"><Menu size={21} /></button></div>
-    </header>
-    <main>
-      <section className="hero-section"><div className="hero-copy"><div className="eyebrow"><Sparkles size={15} /> 让每一套房，都有下一站</div><h1>不是卖房再买房，<br /><em>而是找到想要你这套房的人。</em></h1><p className="hero-description">换房 Match 通过双方的房产与需求，寻找真正互补的置换关系。少一次奔波，多一个刚刚好。</p><div className="hero-actions"><Link className="button button-primary" href="/properties/new">发布我的置换需求 <ArrowRight size={17} /></Link><Link className="button button-ghost" href="/matches">寻找置换机会 <ChevronRight size={17} /></Link></div><div className="hero-proof"><div className="avatar-stack"><span>林</span><span>周</span><span>顾</span><span>+2k</span></div><span><strong>2,486</strong> 位房主正在寻找置换机会</span></div></div><div className="hero-visual"><div className="hero-image-wrap"><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=85" alt="明亮的现代客厅" /><div className="image-caption"><span>今日精选</span><strong>一场双向奔赴的置换</strong><small>浦东 · 仁恒滨江园</small></div></div><div className="floating-match"><div className="match-mini-top"><span className="score-badge">95</span><span>匹配度</span><Heart size={17} /></div><div className="match-mini-body"><div><small>你想要</small><strong>120–150㎡</strong><span>改善型四居</span></div><ArrowRight size={19} /><div><small>对方想要</small><strong>60–80㎡</strong><span>舒适型两居</span></div></div><div className="match-mini-footer"><Check size={14} /> 需求刚好互补</div></div></div></section>
-      <section className="trust-strip"><div><strong>精准匹配</strong><span>不只是面积相近，更是需求互补</span></div><div><strong>真实房主</strong><span>经过认证的房产与身份信息</span></div><div><strong>安心沟通</strong><span>双方有意后，再交换联系方式</span></div></section>
-      <section className="content-section"><div className="section-heading"><div><span className="section-kicker">HOW IT WORKS</span><h2>置换，可以很简单</h2></div><p>把“卖掉再买”的复杂链路，<br />变成一次清晰的双向选择。</p></div><div className="process-grid">{[["01","上传我的房产","告诉我们你现在住在哪里"],["02","填写置换需求","描述你想要的下一套房"],["03","智能匹配","发现需求互补的房主"],["04","双方有意","在安全的空间里开始沟通"]].map(([number,title,desc], index) => <div className={`process-item ${index === 2 ? "active" : ""}`} key={number}><span className="process-number">{number}</span><div className="process-icon">{index === 2 ? <Sparkles size={21} /> : <Check size={21} />}</div><h3>{title}</h3><p>{desc}</p>{index < 3 && <ArrowRight className="process-arrow" size={19} />}</div>)}</div></section>
-      <section className="content-section matches-section"><div className="section-heading"><div><span className="section-kicker">RECIPROCAL MATCHING</span><h2>你的下一套房，<br />可能正是他想换走的。</h2></div><Link className="text-link" href="/matches">查看全部匹配 <ArrowRight size={16} /></Link></div><div className="match-grid">{matches.map((match) => <article className="match-card" key={match.score}><div className="match-card-image"><img src={match.image} alt={match.location} /><span className="match-tag">{match.score}% 高匹配</span><button aria-label="收藏"><Heart size={18} /></button></div><div className="match-card-content"><div className="match-route"><div><small>你拥有</small><strong>{match.mine}</strong></div><div className="route-line"><span /><ArrowRight size={16} /><span /></div><div className="align-right"><small>对方拥有</small><strong>{match.theirs}</strong></div></div><p><span className="status-dot" /> {match.location}</p><div className="match-reason"><Sparkles size={14} /><span>对方正在寻找你的户型，你想要的面积也与对方房产高度吻合。</span></div></div></article>)}</div></section>
-      <section className="liquidity-section"><div className="liquidity-art"><div className="ring ring-one" /><div className="ring ring-two" /><div className="liquidity-card"><span>传统置换</span><strong>6–12个月</strong><small>反复挂牌、看房、议价</small></div><div className="liquidity-card highlight"><span>换房 Match</span><strong>精准互补</strong><small>找到愿意和你交换的人</small></div></div><div className="liquidity-copy"><span className="section-kicker">A BETTER WAY TO MOVE</span><h2>房子不是卖不掉，<br /><em>只是还没遇到对的人。</em></h2><p>传统置换把希望寄托在市场流动性上：先卖、再找、再承担价格波动。我们从“人”出发，让每一套房都带着明确的下一站。</p><Link className="button button-dark" href="/register">开始寻找我的匹配 <ArrowRight size={17} /></Link></div></section>
-    </main>
-    <footer className="site-footer"><Link href="/" className="brand"><span className="brand-mark"><Building2 size={17} /></span><span>换房 <i>Match</i></span></Link><span>让每一次居住选择，都更接近理想。</span><span>© 2024 换房 Match</span></footer>
-  </div>;
+export default function Home() {
+  const [isGuest, setIsGuest] = useState(true);
+  const [listings, setListings] = useState<Listing[]>([]);
+
+  useEffect(() => {
+    const session = loadSession();
+    setIsGuest(session.accountState === "guest");
+    setListings(loadListings().slice(0, 3));
+  }, []);
+
+  return (
+    <div className="site-shell">
+      <header className="site-header">
+        <Link href="/" className="brand">
+          <span className="brand-mark">
+            <Building2 size={18} />
+          </span>
+          <span>
+            换房 <i>Match</i>
+          </span>
+        </Link>
+        <div className="form-actions">
+          <Link href="/login" className="button button-ghost button-small">
+            登录
+          </Link>
+          <Link href="/dashboard" className="button button-primary button-small">
+            进入工作台 <ArrowRight size={15} />
+          </Link>
+        </div>
+      </header>
+
+      <main className="content-section" style={{ paddingTop: 40 }}>
+        <div className="section-heading">
+          <div>
+            <span className="section-kicker">TRUST-BASED EXCHANGE</span>
+            <h2>先验证身份，再做双向匹配</h2>
+          </div>
+          <p>
+            游客仅可看模糊房源；手机号认证后可看全量；
+            <br />
+            资产认证通过后可发布与私信。
+          </p>
+        </div>
+
+        <div className="workspace-list">
+          {listings.map((item) => (
+            <article className={`workspace-card ${isGuest ? "blurred-card" : ""}`} key={item.id}>
+              <div>
+                <span className="match-tag">{item.ownerIntent === "downsize" ? "想换小" : "想换大"}</span>
+                <h2>
+                  {item.current.district} · {isGuest ? "***㎡" : `${item.current.area}㎡`} · {item.current.layout}
+                </h2>
+                <p>
+                  {isGuest
+                    ? "登录后可查看完整估值、目标区域、现金差与匹配逻辑。"
+                    : `估值 ${item.current.estimatedValueWan} 万；目标 ${item.target.minArea}-${item.target.maxArea}㎡ ${item.target.districts.join("/")}`}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {isGuest ? (
+          <div className="empty-state compact" style={{ marginTop: 24 }}>
+            <h2>当前为游客模式</h2>
+            <p>请先手机号登录，后续在个人中心完成资产认证解锁完整功能。</p>
+            <Link href="/login" className="button button-primary">
+              立即登录
+            </Link>
+          </div>
+        ) : null}
+      </main>
+    </div>
+  );
 }
