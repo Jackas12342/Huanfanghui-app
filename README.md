@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 换房 Match MVP (Next.js)
 
-## Getting Started
+这是一个按照「先做可运行 Web MVP，再迁移到微信小程序」思路改造的演示项目。
 
-First, run the development server:
+## 已实现的 MVP 核心能力（Stage 1）
+
+- **账号分级**
+  - Guest：仅可看模糊房源
+  - Phone Verified：可看完整房源与匹配
+  - Asset Verified：可发布 live 房源、表达意向、私信
+- **手机号 + OTP 登录**（演示码 `123456`）
+  - 60s 冷却
+  - 错误 5 次锁定 10 分钟
+- **微信绑定入口**（模拟 OAuth）
+- **资产认证流程**（房产证/身份证打码件）
+  - 状态：未提交 / 审核中 / 已通过 / 未通过
+- **发布房源双向表单（Give & Get）**
+  - Part A 当前房产
+  - Part B 置换目标
+  - 图片要求 3~5 项
+- **匹配引擎 v1**
+  - 严格互补规则（区域、面积、现金差双向满足）
+  - 评分机制（位置40 + 面积30 + 预算30）
+  - 评分说明可见
+- **通知**
+  - 新房源若与用户需求匹配分数 >80，触发站内通知
+- **安全沟通**
+  - 仅资产认证且双方互相意向后可发消息
+  - 微信联系方式默认遮罩，需主动发起并确认后展示
+  - 支持撤回、举报、屏蔽
+- **最小化管理台**
+  - 认证审核
+  - 房源下架/恢复
+  - 举报查看
+
+> 注意：当前为前端 + localStorage 演示，不含真实后端、真实短信网关和真实审核系统。
+
+## 本地运行
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+打开 [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 页面地图
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/` 首页（游客模糊展示）
+- `/login` 登录/OTP/微信绑定
+- `/register` 注册说明
+- `/dashboard` 双 feed 工作台（Downsize/Upsize）
+- `/matches` 匹配结果与评分细分
+- `/properties/new` 发布双向表单
+- `/messages` 安全聊天 + 微信联系交换
+- `/profile` 认证中心
+- `/admin` 最小运营后台
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Stage 2：迁移到微信小程序（执行指南）
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 1) 技术路径
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+推荐迁移到 **Taro + React + TypeScript**，复用当前组件和业务模型思路。
 
-## Deploy on Vercel
+### 2) 迁移步骤
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. 新建 Taro 项目，按小程序 pages 拆分路由。
+2. 把本仓库中的业务模型（账号状态、匹配逻辑、认证状态机、聊天规则）抽到共享模块。
+3. 用小程序组件替换 Web 组件（导航、表单、上传、消息列表）。
+4. 接入微信登录能力并与后端账号系统绑定。
+5. 接入真实后端（短信、认证审核、房源、匹配、消息、举报、风控）。
+6. 配置 request/upload/download 合法域名与业务域名。
+7. 在微信开发者工具联调完整链路：游客 → 手机验证 → 资产认证 → 发布 → 匹配 → 私信 → 联系方式交换。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 3) 发布流程
+
+1. 注册并认证小程序主体。
+2. 在小程序后台配置服务器域名与隐私协议。
+3. 微信开发者工具上传体验版。
+4. 准备审核账号和测试路径说明提交审核。
+5. 审核通过后全量发布。
+
+### 4) 上线前必做
+
+- 真正的短信服务与验证码风控
+- 文件上传安全扫描
+- 鉴权与会话安全（HttpOnly Cookie / token 轮换）
+- 操作审计日志
+- 敏感词与反骚扰策略
+- 法务页面（用户协议 / 隐私政策 / 认证声明）

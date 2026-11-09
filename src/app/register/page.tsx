@@ -1,2 +1,24 @@
 import Link from "next/link";
-export default function RegisterPage() { return <div className="auth-shell"><Link href="/" className="brand">换房 <i>Match</i></Link><div className="auth-panel"><span className="section-kicker">JOIN MATCH</span><h1>加入换房 Match</h1><p>先留下你的置换方向，找到真正互补的机会。</p><label>手机号<input placeholder="请输入手机号" /></label><label>设置密码<input type="password" placeholder="设置登录密码" /></label><button className="button button-primary" disabled>创建账号（即将开放）</button><span className="auth-foot">已有账号？ <Link href="/login">直接登录</Link></span></div></div>; }
+
+export default function RegisterPage() {
+  return (
+    <div className="auth-shell">
+      <Link href="/" className="brand">
+        换房 <i>Match</i>
+      </Link>
+      <div className="auth-panel">
+        <span className="section-kicker">TRUST FIRST</span>
+        <h1>注册流程（MVP）</h1>
+        <p>本平台使用手机号验证码直接创建账号，避免匿名与机器人刷号。</p>
+        <ol>
+          <li>手机号 + 验证码完成账号创建（Phone Verified）。</li>
+          <li>在个人中心提交房产证/身份证打码件进入资产审核。</li>
+          <li>审核通过后升级为 Asset Verified，可发布房源和发起私信。</li>
+        </ol>
+        <Link className="button button-primary" href="/login">
+          去登录 / 注册
+        </Link>
+      </div>
+    </div>
+  );
+}
